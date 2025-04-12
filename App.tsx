@@ -9,6 +9,9 @@ import React from 'react'
 import { EditNote } from './src/modules/notes/ui/screens/EditNote/EditNote'
 import { NotesRepositoryProvider } from './src/modules/notes/providers/NotesRepository/NotesRepositoryProvider'
 import { NotesProvider } from './src/modules/notes/providers/Notes/NotesProvider'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
+import { BottomSheetProvider } from './src/modules/notes/providers/BottomSheet/BottomSheetProvider'
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -34,28 +37,34 @@ export default function App() {
   }
 
   return (
-    <NotesRepositoryProvider>
-      <NotesProvider>
-        <NavigationContainer theme={customTheme}>
-          <Stack.Navigator initialRouteName="Notes">
-            <Stack.Screen
-              name="Notes"
-              component={Home}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="AddNote"
-              component={AddNote}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="EditNote"
-              component={EditNote}
-              options={{ headerShown: false }}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </NotesProvider>
-    </NotesRepositoryProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <BottomSheetModalProvider>
+        <BottomSheetProvider>
+          <NotesRepositoryProvider>
+            <NotesProvider>
+              <NavigationContainer theme={customTheme}>
+                <Stack.Navigator initialRouteName="Notes">
+                  <Stack.Screen
+                    name="Notes"
+                    component={Home}
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="AddNote"
+                    component={AddNote}
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="EditNote"
+                    component={EditNote}
+                    options={{ headerShown: false }}
+                  />
+                </Stack.Navigator>
+              </NavigationContainer>
+            </NotesProvider>
+          </NotesRepositoryProvider>
+        </BottomSheetProvider>
+      </BottomSheetModalProvider>
+    </GestureHandlerRootView>
   )
 }
