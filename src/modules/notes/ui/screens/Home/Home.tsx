@@ -14,13 +14,17 @@ import { isUndefined } from '../../../../../common/utilities/isUndefined'
 import { openDatabaseSync } from 'expo-sqlite/next'
 import { drizzle } from 'drizzle-orm/expo-sqlite'
 import { Header } from './_components/Header'
+import { useBottomSheet } from '../../../providers/BottomSheet/useBottomSheet'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 
 export const Home: React.FC = () => {
   const [hasError, setHasError] = useState<boolean>(false)
+  const [isBottomSheetOpen, setBottomSheetOpen] = useState(false)
 
   const expoDb = openDatabaseSync('db.notikas')
   const db = drizzle(expoDb)
   const { success, error } = useMigrations(db, migrations)
+  const { openBottomSheet } = useBottomSheet()
 
   const { notes, loadNotes } = useNotes()
 
@@ -53,6 +57,26 @@ export const Home: React.FC = () => {
     )
   }
 
+  const handleOpenBottomSheet = () => {
+    openBottomSheet(
+      <View style={styles.bottomSheetContainer}>
+        <Texto estilo="montserratBold" size="large" marginBottom="large">
+          Opciones
+        </Texto>
+        <View style={styles.buttonContainer}>
+          <View style={styles.optionButton}>
+            <MaterialCommunityIcons name="pencil" size={24} color="black" />
+            <Texto estilo="montserratBold">Editar</Texto>
+          </View>
+          <View style={styles.optionButton}>
+            <MaterialCommunityIcons name="pencil" size={24} color="black" />
+            <Texto estilo="montserratBold">Editar</Texto>
+          </View>
+        </View>
+      </View>
+    )
+  }
+
   return (
     <>
       <StatusBar style="auto" />
@@ -64,7 +88,7 @@ export const Home: React.FC = () => {
             <Texto marginBottom="xsmall" estilo="montserratMedium">
               Últimas notas
             </Texto>
-            <NoteList data={notes} />
+            <NoteList data={notes} onNotePress={handleOpenBottomSheet} />
           </View>
         </Layout>
       </SafeAreaView>
@@ -78,5 +102,31 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     paddingBottom: theme.spacing.large,
     flex: 1,
+  },
+  bottomSheetContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    color: 'red',
+  },
+  buttonContainer: {
+    display: 'flex',
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: theme.spacing.xsmall,
+    paddingHorizontal: theme.spacing.large,
+  },
+  optionButton: {
+    display: 'flex',
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: theme.colors.secondary,
+    gap: theme.spacing.xsmall,
+    borderRadius: 10,
+    padding: 15,
   },
 })

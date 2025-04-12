@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Pressable, View } from 'react-native'
 import theme, { FileColor } from '../../../../theme'
 import { NoteCard } from '../Note/Note'
@@ -6,9 +6,11 @@ import { Note } from '../../../../../db/schema'
 import MasonryList from '@react-native-seoul/masonry-list'
 import { useNavigation } from '@react-navigation/native'
 import { RootStackNavigationProp } from '../../../../../type'
+import { BottomSheet } from '../../../../common/BottomSheet/BottomSheet'
 
 type Props = {
   data: Note[]
+  onNotePress: () => void
 }
 
 type ItemProps = {
@@ -17,9 +19,16 @@ type ItemProps = {
   color: FileColor
   createdAt: string
   isFavorite: boolean
+  onNotePress: () => void
 }
 
-const Item: React.FC<ItemProps> = ({ id, title, createdAt, color }) => {
+const Item: React.FC<ItemProps> = ({
+  id,
+  title,
+  createdAt,
+  color,
+  onNotePress,
+}) => {
   const navigation = useNavigation<RootStackNavigationProp>()
 
   const handlePressItem = (id: number) => () => {
@@ -37,6 +46,7 @@ const Item: React.FC<ItemProps> = ({ id, title, createdAt, color }) => {
       <Pressable
         android_ripple={{ color: theme.colors.primary, foreground: true }}
         onPress={handlePressItem(id)}
+        onLongPress={onNotePress}
       >
         <NoteCard title={title} color={color} createdAt={createdAt} />
       </Pressable>
@@ -44,7 +54,7 @@ const Item: React.FC<ItemProps> = ({ id, title, createdAt, color }) => {
   )
 }
 
-export const NoteList: React.FC<Props> = ({ data }) => {
+export const NoteList: React.FC<Props> = ({ data, onNotePress }) => {
   return (
     <View style={{ flex: 1 }}>
       {/* TODO Use the method onEndReached to load more notes */}
@@ -63,6 +73,7 @@ export const NoteList: React.FC<Props> = ({ data }) => {
               color={note.color}
               createdAt={note.createdAt}
               isFavorite={note.isFavorite}
+              onNotePress={onNotePress}
             />
           )
         }}
