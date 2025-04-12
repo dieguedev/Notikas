@@ -11,6 +11,7 @@
     "prebuild": "expo prebuild --platform android"
   },
   "dependencies": {
+    "@gorhom/bottom-sheet": "^4.4.7",
     "@react-native-seoul/masonry-list": "^1.4.2",
     "@react-navigation/native": "^6.1.9",
     "@react-navigation/native-stack": "^6.9.17",
