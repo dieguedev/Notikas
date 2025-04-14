@@ -11,26 +11,30 @@ import { FolderList } from '../../../_components/FolderList/FolderList'
 import migrations from '../../../../../../drizzle/migrations'
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator'
 import { isUndefined } from '../../../../../common/utilities/isUndefined'
-import { openDatabaseSync } from 'expo-sqlite/next'
-import { drizzle } from 'drizzle-orm/expo-sqlite'
 import { Header } from './_components/Header'
 import { useBottomSheet } from '../../../providers/BottomSheet/useBottomSheet'
-import { BottomSheetButton } from '../../../../../common/BottomSheet/_components/BottomSheetButton'
 import { ButtonGrid } from '../../../../../common/BottomSheet/_components/ButtonGrid'
 import { ColorPicker } from '../../../../../common/ColorPicker/ColorPicker'
 import { getColorOptions } from '../../../domain/services/getColorOptions'
 import { ColorOption } from '../../../domain/models/ColorOption'
+import { useNotesRepository } from '../../../providers/NotesRepository/useNotesRepository'
+import { getNoteById } from '../../../application/note/get/getNote'
+import { updateNote } from '../../../application/note/update/updateNote'
+import { Note } from '../../../../../../db/schema'
+import { RootStackNavigationProp } from '../../../../../../type'
+import { useNavigation } from '@react-navigation/native'
+import { deleteNote } from '../../../application/note/delete/deleteNote'
+import { getDatabase } from '../../../../../../db/database'
 
 export const Home: React.FC = () => {
   const [hasError, setHasError] = useState<boolean>(false)
   const [colorOptions, setColorOptions] = useState<ColorOption[]>([])
-  const [selectedColor, setSelectedColor] =
-    useState<FileColor>('pastelDarkPurple')
 
-  const expoDb = openDatabaseSync('db.notikas')
-  const db = drizzle(expoDb)
+  const db = getDatabase()
   const { success, error } = useMigrations(db, migrations)
-  const { openBottomSheet } = useBottomSheet()
+  const { openBottomSheet, closeBottomSheet } = useBottomSheet()
+  const { notesRepository } = useNotesRepository()
+  const navigation = useNavigation<RootStackNavigationProp>()
 
   const { notes, loadNotes } = useNotes()
 
@@ -65,11 +69,14 @@ export const Home: React.FC = () => {
     )
   }
 
-  const handleColorChange = (color: FileColor) => {
-    setSelectedColor(color)
+  const handleColorChange = (color: FileColor, note: Note) => {
+    updateNote(notesRepository, { ...note, color })
+    loadNotes()
   }
 
-  const handleOpenBottomSheet = () => {
+  const handleOpenBottomSheet = async (id: number) => {
+    const [note] = await getNoteById(notesRepository, id)
+
     openBottomSheet(
       <View style={styles.bottomSheetContainer}>
         <Texto estilo="montserratBold" size="large" marginBottom="medium">
@@ -77,8 +84,8 @@ export const Home: React.FC = () => {
         </Texto>
         <ColorPicker
           colorOptions={colorOptions}
-          initialColor={selectedColor}
-          onColorChange={handleColorChange}
+          initialColor={note.color}
+          onColorChange={(color) => handleColorChange(color, note)}
           isInBottomSheet
         />
         <ButtonGrid
@@ -86,12 +93,19 @@ export const Home: React.FC = () => {
             {
               icon: 'pencil',
               label: 'Editar',
-              onPress: () => {},
+              onPress: () => {
+                navigation.navigate('EditNote', { noteId: id })
+                closeBottomSheet()
+              },
             },
             {
               icon: 'delete',
               label: 'Eliminar',
-              onPress: () => {},
+              onPress: () => {
+                deleteNote(notesRepository, id)
+                loadNotes()
+                closeBottomSheet()
+              },
             },
           ]}
         />
