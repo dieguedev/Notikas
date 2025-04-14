@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Layout } from '../../../../../common/Layout/Layout'
 import { Texto } from '../../../../../common/Texto/Texto'
 import { View, StyleSheet } from 'react-native'
-import theme from '../../../../../theme'
+import theme, { FileColor } from '../../../../../theme'
 import { StatusBar } from 'expo-status-bar'
 import { NoteList } from '../../../_components/NoteList/NoteList'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -15,11 +15,17 @@ import { openDatabaseSync } from 'expo-sqlite/next'
 import { drizzle } from 'drizzle-orm/expo-sqlite'
 import { Header } from './_components/Header'
 import { useBottomSheet } from '../../../providers/BottomSheet/useBottomSheet'
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
+import { BottomSheetButton } from '../../../../../common/BottomSheet/_components/BottomSheetButton'
+import { ButtonGrid } from '../../../../../common/BottomSheet/_components/ButtonGrid'
+import { ColorPicker } from '../../../../../common/ColorPicker/ColorPicker'
+import { getColorOptions } from '../../../domain/services/getColorOptions'
+import { ColorOption } from '../../../domain/models/ColorOption'
 
 export const Home: React.FC = () => {
   const [hasError, setHasError] = useState<boolean>(false)
-  const [isBottomSheetOpen, setBottomSheetOpen] = useState(false)
+  const [colorOptions, setColorOptions] = useState<ColorOption[]>([])
+  const [selectedColor, setSelectedColor] =
+    useState<FileColor>('pastelDarkPurple')
 
   const expoDb = openDatabaseSync('db.notikas')
   const db = drizzle(expoDb)
@@ -32,6 +38,8 @@ export const Home: React.FC = () => {
     try {
       const onLoad = async () => {
         loadNotes()
+        const colorOptions = getColorOptions()
+        setColorOptions(colorOptions)
       }
       onLoad()
     } catch (error) {
@@ -57,22 +65,36 @@ export const Home: React.FC = () => {
     )
   }
 
+  const handleColorChange = (color: FileColor) => {
+    setSelectedColor(color)
+  }
+
   const handleOpenBottomSheet = () => {
     openBottomSheet(
       <View style={styles.bottomSheetContainer}>
-        <Texto estilo="montserratBold" size="large" marginBottom="large">
+        <Texto estilo="montserratBold" size="large" marginBottom="medium">
           Opciones
         </Texto>
-        <View style={styles.buttonContainer}>
-          <View style={styles.optionButton}>
-            <MaterialCommunityIcons name="pencil" size={24} color="black" />
-            <Texto estilo="montserratBold">Editar</Texto>
-          </View>
-          <View style={styles.optionButton}>
-            <MaterialCommunityIcons name="pencil" size={24} color="black" />
-            <Texto estilo="montserratBold">Editar</Texto>
-          </View>
-        </View>
+        <ColorPicker
+          colorOptions={colorOptions}
+          initialColor={selectedColor}
+          onColorChange={handleColorChange}
+          isInBottomSheet
+        />
+        <ButtonGrid
+          options={[
+            {
+              icon: 'pencil',
+              label: 'Editar',
+              onPress: () => {},
+            },
+            {
+              icon: 'delete',
+              label: 'Eliminar',
+              onPress: () => {},
+            },
+          ]}
+        />
       </View>
     )
   }
@@ -108,25 +130,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     color: 'red',
-  },
-  buttonContainer: {
-    display: 'flex',
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: theme.spacing.xsmall,
     paddingHorizontal: theme.spacing.large,
-  },
-  optionButton: {
-    display: 'flex',
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: theme.colors.secondary,
-    gap: theme.spacing.xsmall,
-    borderRadius: 10,
-    padding: 15,
   },
 })
