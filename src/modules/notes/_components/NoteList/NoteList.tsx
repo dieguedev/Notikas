@@ -9,6 +9,7 @@ import { RootStackNavigationProp } from '../../../../../type'
 
 type Props = {
   data: Note[]
+  onNotePress: (id: number) => void
 }
 
 type ItemProps = {
@@ -17,9 +18,16 @@ type ItemProps = {
   color: FileColor
   createdAt: string
   isFavorite: boolean
+  onNotePress: (id: number) => void
 }
 
-const Item: React.FC<ItemProps> = ({ id, title, createdAt, color }) => {
+const Item: React.FC<ItemProps> = ({
+  id,
+  title,
+  createdAt,
+  color,
+  onNotePress,
+}) => {
   const navigation = useNavigation<RootStackNavigationProp>()
 
   const handlePressItem = (id: number) => () => {
@@ -37,6 +45,7 @@ const Item: React.FC<ItemProps> = ({ id, title, createdAt, color }) => {
       <Pressable
         android_ripple={{ color: theme.colors.primary, foreground: true }}
         onPress={handlePressItem(id)}
+        onLongPress={() => onNotePress(id)}
       >
         <NoteCard title={title} color={color} createdAt={createdAt} />
       </Pressable>
@@ -44,7 +53,7 @@ const Item: React.FC<ItemProps> = ({ id, title, createdAt, color }) => {
   )
 }
 
-export const NoteList: React.FC<Props> = ({ data }) => {
+export const NoteList: React.FC<Props> = ({ data, onNotePress }) => {
   return (
     <View style={{ flex: 1 }}>
       {/* TODO Use the method onEndReached to load more notes */}
@@ -63,6 +72,7 @@ export const NoteList: React.FC<Props> = ({ data }) => {
               color={note.color}
               createdAt={note.createdAt}
               isFavorite={note.isFavorite}
+              onNotePress={onNotePress}
             />
           )
         }}

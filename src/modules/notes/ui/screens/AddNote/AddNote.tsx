@@ -26,6 +26,7 @@ import { useNotes } from '../../../providers/Notes/useNotes'
 import { useNavigation } from '@react-navigation/native'
 import { RootStackNavigationProp } from '../../../../../../type'
 import { Header } from './_components/Header'
+import { ColorPicker } from '../../../../../common/ColorPicker/ColorPicker'
 
 interface FormValues {
   fileType: string
@@ -62,8 +63,8 @@ export const AddNote: React.FC = () => {
     setColorOptions(colorOptions)
   }, [])
 
-  const handleColorChange = (colorOption: ColorOption) => {
-    setSelectedColor(colorOption.value)
+  const handleColorChange = (color: FileColor) => {
+    setSelectedColor(color)
   }
 
   const handleCreation = async (values: FormValues) => {
@@ -81,21 +82,6 @@ export const AddNote: React.FC = () => {
       navigation.navigate('EditNote', { noteId: createdNote.id })
     }
   }
-
-  const Item = ({ colorOption, fieldName, setFieldValue }: ItemProps) => (
-    <Pressable
-      style={circleInput(colorOption.color)}
-      onPress={() => {
-        handleColorChange(colorOption)
-        setFieldValue(fieldName, colorOption.value)
-      }}
-    >
-      <Animated.View
-        style={checkedCircle(colorOption, selectedColor)}
-        entering={ZoomIn.duration(400)}
-      />
-    </Pressable>
-  )
 
   const initialValues: FormValues = {
     fileType: 'note',
@@ -198,22 +184,13 @@ export const AddNote: React.FC = () => {
                   </Texto>
                   <Field name="color">
                     {({ field }: FieldProps<any>) => (
-                      <View>
-                        <FlatList
-                          data={colorOptions}
-                          contentContainerStyle={styles.colorPickerContainer}
-                          overScrollMode="auto"
-                          horizontal={true}
-                          showsHorizontalScrollIndicator={false}
-                          renderItem={({ item }) => (
-                            <Item
-                              colorOption={item}
-                              fieldName={field.name}
-                              setFieldValue={setFieldValue}
-                            />
-                          )}
-                        />
-                      </View>
+                      <ColorPicker
+                        colorOptions={colorOptions || []}
+                        initialColor={selectedColor}
+                        onColorChange={handleColorChange}
+                        fieldName={field.name}
+                        setFieldValue={setFieldValue}
+                      />
                     )}
                   </Field>
 
