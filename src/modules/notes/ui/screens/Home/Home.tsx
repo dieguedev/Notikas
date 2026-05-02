@@ -11,7 +11,7 @@ import { FolderList } from '../../../_components/FolderList/FolderList'
 import migrations from '../../../../../../drizzle/migrations'
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator'
 import { isUndefined } from '../../../../../common/utilities/isUndefined'
-import { openDatabaseSync } from 'expo-sqlite/next'
+import { openDatabaseSync } from 'expo-sqlite'
 import { drizzle } from 'drizzle-orm/expo-sqlite'
 import { Header } from './_components/Header'
 
