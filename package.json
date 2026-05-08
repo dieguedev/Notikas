@@ -11,6 +11,7 @@
     "prebuild": "expo prebuild --platform android"
   },
   "dependencies": {
+    "@expo/vector-icons": "14.1.0",
     "@react-native-seoul/masonry-list": "1.4.2",
     "@react-navigation/native": "6.1.9",
     "@react-navigation/native-stack": "6.9.17",
